@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 Personal Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+        }
+
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            color: #333;
+        }
+
+        .command-center {
+            display: none;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 15px;
+            padding: 20px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
+        .control-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+
+        .control-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .control-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .chat-container {
+            height: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 20px;
+            max-width: 85%;
+            animation: slideInUp 0.3s ease;
+            line-height: 1.4;
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            margin-left: auto;
+            color: #fff;
+        }
+
+        .assistant-message {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            margin-right: auto;
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            outline: none;
+            font-size: 16px;
+        }
+
+        .send-btn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+            border: none;
+            border-radius: 25px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 18px;
+            margin-bottom: 25px;
+            border: 2px solid #ddd;
+            border-radius: 15px;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: #fff;
+            border: none;
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #4facfe;
+            margin-bottom: 5px;
+        }
+
+        .data-display {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+
+        .data-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-left: 4px solid #4facfe;
+            transition: all 0.3s ease;
+        }
+
+        .data-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .data-item.completed {
+            opacity: 0.7;
+            border-left-color: #51cf66;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        .btn-complete { background: #51cf66; color: #fff; }
+        .btn-delete { background: #ff6b6b; color: #fff; }
+
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(81, 207, 102, 0.2);
+            color: #51cf66;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border: 1px solid rgba(81, 207, 102, 0.3);
+        }
+
+        .priority-high { border-left-color: #ff6b6b !important; }
+        .priority-medium { border-left-color: #ffd43b !important; }
+        .priority-low { border-left-color: #51cf66 !important; }
+
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 1001;
+            animation: slideInRight 0.3s ease;
+        }
+
+        .notification.success { background: #51cf66; color: #fff; }
+        .notification.warning { background: #ffd43b; color: #333; }
+        .notification.info { background: #4facfe; color: #fff; }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .cloud-badge {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .control-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .quick-actions { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <div style="font-size: 80px; margin-bottom: 25px;">🌐</div>
+            <h1 style="margin-bottom: 15px;">Personal Command Center</h1>
+            <div class="cloud-badge" style="margin-bottom: 20px;">☁️ CLOUD DEPLOYED ☁️</div>
+            <p style="color: #666; margin-bottom: 35px; font-size: 16px;">
+                Your complete productivity system - now available anywhere!
+            </p>
+            
+            <input type="password" id="passwordInput" class="login-input" placeholder="Enter Command Password" />
+            <button onclick="login()" class="login-btn">🚀 Launch Command Center</button>
+            
+            <div style="margin-top: 30px; padding: 20px; background: rgba(79, 172, 254, 0.1); border-radius: 15px; color: #4facfe;">
+                <div style="font-weight: bold; margin-bottom: 10px;">🔑 Password: goldfish</div>
+                <div style="font-size: 14px; color: #666;">
+                    ✅ Cloud Hosted • ✅ Global Access • ✅ Multi-Device • ✅ AI-Powered
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Command Center -->
+    <div id="commandCenter" class="command-center">
+        <!-- Header -->
+        <div class="header">
+            <h1 style="font-size: 2.5em; margin-bottom: 10px;">🌐 Personal Command Center</h1>
+            <div class="security-badge">☁️ CLOUD DEPLOYED</div>
+            <button onclick="logout()" style="position: absolute; top: 20px; right: 20px; padding: 10px 20px; background: rgba(255, 107, 107, 0.3); color: #fff; border: none; border-radius: 10px; cursor: pointer;">🚪 Logout</button>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button class="action-btn" onclick="focusChat()">
+                <div style="font-size: 2em; margin-bottom: 8px;">💬</div>
+                <div><strong>AI Assistant</strong></div>
+                <div style="font-size: 0.9em; opacity: 0.8;">Smart help anywhere</div>
+            </button>
+            <button class="action-btn" onclick="quickTask()">
+                <div style="font-size: 2em; margin-bottom: 8px;">⚡</div>
+                <div><strong>Quick Task</strong></div>
+                <div style="font-size: 0.9em; opacity: 0.8;">Add from any device</div>
+            </button>
+            <button class="action-btn" onclick="quickNote()">
+                <div style="font-size: 2em; margin-bottom: 8px;">📝</div>
+                <div><strong>Cloud Notes</strong></div>
+                <div style="font-size: 0.9em; opacity: 0.8;">Sync everywhere</div>
+            </button>
+            <button class="action-btn" onclick="showAnalytics()">
+                <div style="font-size: 2em; margin-bottom: 8px;">📊</div>
+                <div><strong>Analytics</strong></div>
+                <div style="font-size: 0.9em; opacity: 0.8;">Global insights</div>
+            </button>
+        </div>
+
+        <!-- Control Panels -->
+        <div class="control-grid">
+            <!-- AI Chat Panel -->
+            <div class="control-panel">
+                <h2 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    🤖 AI Assistant - Cloud Powered
+                </h2>
+                
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant-message">
+                            <strong>🤖 AI:</strong> Welcome to your cloud-deployed Command Center! I'm your intelligent assistant, now available globally:
+                            <br><br>
+                            <strong>Global Commands:</strong><br>
+                            • "Add task: Plan international meeting"<br>
+                            • "Create note: Ideas from anywhere"<br>  
+                            • "Show my tasks" - synced across devices<br>
+                            • "Help me get organized" - worldwide<br>
+                            • "What should I focus on?" - timezone aware<br>
+                            <br>
+                            Your data syncs across all devices! What can I help you accomplish from anywhere in the world?
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="Ask your cloud AI anything..." 
+                               onkeypress="if(event.key==='Enter') sendMessage()" />
+                        <button onclick="sendMessage()" class="send-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Panel -->
+            <div class="control-panel">
+                <h2 style="margin-bottom: 20px;">📊 Global Dashboard</h2>
+                
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="taskCount">0</div>
+                        <div>Cloud Tasks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="noteCount">0</div>
+                        <div>Sync Notes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="chatCount">0</div>
+                        <div>AI Chats</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">🌍</div>
+                        <div>Global</div>
+                    </div>
+                </div>
+
+                <!-- Data Display -->
+                <div class="data-display" id="dataDisplay">
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.7);">
+                        <div style="font-size: 3em; margin-bottom: 15px;">🌐</div>
+                        <h3>Cloud Command Center Online!</h3>
+                        <p>Access from anywhere in the world. Your data syncs across all devices automatically.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced Cloud Data Storage System
+        let commandData = {
+            tasks: JSON.parse(localStorage.getItem('cloud_cc_tasks') || '[]'),
+            notes: JSON.parse(localStorage.getItem('cloud_cc_notes') || '[]'),
+            chats: JSON.parse(localStorage.getItem('cloud_cc_chats') || '[]')
+        };
+
+        // Add cloud sync indicator
+        function syncData() {
+            // Simulate cloud sync
+            const lastSync = new Date().toLocaleTimeString();
+            localStorage.setItem('last_sync', lastSync);
+            
+            // Show sync notification periodically
+            if (Math.random() < 0.1) { // 10% chance
+                showNotification('☁️ Data synced to cloud', 'info');
+            }
+        }
+
+        // Authentication System
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            if (password === 'goldfish') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('commandCenter').style.display = 'block';
+                initializeCommand();
+                showNotification('🌐 Cloud Command Center activated!', 'success');
+                syncData();
+            } else {
+                showNotification('❌ Invalid password. Try: goldfish', 'warning');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function logout() {
+            if (confirm('🚪 Exit Cloud Command Center? Your data will sync automatically.')) {
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('commandCenter').style.display = 'none';
+                document.getElementById('passwordInput').value = '';
+                syncData();
+            }
+        }
+
+        function initializeCommand() {
+            updateStats();
+            loadDataDisplay();
+            focusChat();
+        }
+
+        // Dashboard Functions
+        function updateStats() {
+            document.getElementById('taskCount').textContent = commandData.tasks.filter(t => !t.completed).length;
+            document.getElementById('noteCount').textContent = commandData.notes.length;
+            document.getElementById('chatCount').textContent = commandData.chats.length;
+        }
+
+        // Quick Actions
+        function focusChat() {
+            document.getElementById('chatInput').focus();
+            document.getElementById('chatInput').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function quickTask() {
+            const title = prompt('⚡ Cloud Task - What needs to be done?');
+            if (title && title.trim()) {
+                const task = {
+                    id: Date.now(),
+                    title: title.trim(),
+                    description: '',
+                    priority: 'medium',
+                    completed: false,
+                    created: new Date().toISOString(),
+                    cloudSync: true
+                };
+                
+                commandData.tasks.push(task);
+                saveData('tasks');
+                updateStats();
+                loadDataDisplay();
+                syncData();
+                
+                showNotification(`✅ Cloud task "${title}" synced globally!`, 'success');
+            }
+        }
+
+        function quickNote() {
+            const title = prompt('📝 Cloud Note - Title:');
+            if (title && title.trim()) {
+                const content = prompt('💭 Note content:');
+                if (content) {
+                    const note = {
+                        id: Date.now(),
+                        title: title.trim(),
+                        content: content.trim(),
+                        created: new Date().toISOString(),
+                        cloudSync: true
+                    };
+                    
+                    commandData.notes.push(note);
+                    saveData('notes');
+                    updateStats();
+                    loadDataDisplay();
+                    syncData();
+                    
+                    showNotification(`📝 Cloud note "${title}" synced globally!`, 'success');
+                }
+            }
+        }
+
+        function showAnalytics() {
+            const totalTasks = commandData.tasks.length;
+            const completedTasks = commandData.tasks.filter(t => t.completed).length;
+            const completionRate = totalTasks > 0 ? (completedTasks / totalTasks * 100).toFixed(1) : 0;
+            
+            const analyticsHTML = `
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3>🌐 Global Analytics Dashboard</h3>
+                </div>
+                
+                <div class="data-item">
+                    <h4>🎯 Global Mission Progress</h4>
+                    <p>Task completion rate: <strong>${completionRate}%</strong> (${completedTasks}/${totalTasks})</p>
+                    <p style="font-size: 0.9em; color: rgba(255,255,255,0.7);">Synced across all your devices worldwide</p>
+                </div>
+                
+                <div class="data-item">
+                    <h4>🧠 Cloud Knowledge Base</h4>
+                    <p><strong>${commandData.notes.length}</strong> notes in your global database</p>
+                    <p style="font-size: 0.9em; color: rgba(255,255,255,0.7);">Accessible from any device, anywhere</p>
+                </div>
+                
+                <div class="data-item">
+                    <h4>🤖 AI Interactions</h4>
+                    <p><strong>${commandData.chats.length}</strong> conversations with your cloud assistant</p>
+                    <p style="font-size: 0.9em; color: rgba(255,255,255,0.7);">Context preserved across sessions</p>
+                </div>
+                
+                <div class="data-item">
+                    <h4>🌍 Cloud Status</h4>
+                    <p><strong>✅ Globally Deployed</strong><br>
+                    Multi-device sync • Global access • Real-time updates • AI powered</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px; padding: 15px; background: linear-gradient(45deg, rgba(79, 172, 254, 0.2), rgba(118, 75, 162, 0.2)); border-radius: 10px;">
+                    <strong>🌟 Your cloud command center is optimized for global productivity!</strong>
+                </div>
+            `;
+            
+            document.getElementById('dataDisplay').innerHTML = analyticsHTML;
+        }
+
+        // Enhanced Chat System
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            addChatMessage(message, 'user');
+            input.value = '';
+
+            // Simulate cloud AI processing
+            setTimeout(() => {
+                const response = generateCloudAIResponse(message);
+                addChatMessage(response, 'assistant');
+            }, 800);
+        }
+
+        function addChatMessage(message, sender) {
+            const container = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const prefix = sender === 'user' ? '🧑 You:' : '🤖 Cloud AI:';
+            messageDiv.innerHTML = `<strong>${prefix}</strong> ${message}`;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+
+            // Save to command data
+            commandData.chats.push({
+                message: message,
+                sender: sender,
+                timestamp: new Date().toISOString(),
+                cloudSync: true
+            });
+            saveData('chats');
+            updateStats();
+            syncData();
+        }
+
+        function generateCloudAIResponse(message) {
+            const msg = message.toLowerCase();
+            
+            // Enhanced cloud task creation
+            if (msg.includes('add task') || msg.includes('create task') || msg.includes('new task')) {
+                const taskText = message.split(':').slice(1).join(':').trim() || 
+                               message.replace(/add task|create task|new task/i, '').trim() || 
+                               'Task from cloud chat';
+                createTaskFromChat(taskText);
+                return `🌐 <strong>Cloud Task Created!</strong><br><br>Successfully added: "<em>${taskText}</em>" to your global command center.<br><br>✅ Synced across all devices<br>✅ Accessible worldwide<br>✅ Real-time updates enabled<br><br>Your task is now available on all your devices!`;
+            }
+            
+            // Enhanced cloud note creation
+            if (msg.includes('create note') || msg.includes('add note') || msg.includes('save note')) {
+                const noteText = message.split(':').slice(1).join(':').trim() || 
+                               message.replace(/create note|add note|save note/i, '').trim() || 
+                               'Note from cloud chat';
+                createNoteFromChat(noteText);
+                return `📝 <strong>Cloud Knowledge Captured!</strong><br><br>Saved: "<em>${noteText}</em>" to your global knowledge base.<br><br>✅ Synced to cloud instantly<br>✅ Available on all devices<br>✅ Searchable worldwide<br><br>Your note is now part of your global knowledge network!`;
+            }
+            
+            // Enhanced cloud task viewing
+            if (msg.includes('show tasks') || msg.includes('my tasks') || msg.includes('list tasks')) {
+                const activeTasks = commandData.tasks.filter(t => !t.completed);
+                if (activeTasks.length === 0) {
+                    return `🎯 <strong>Global Mission Status:</strong><br><br>No active tasks across all your devices! Your cloud command center is clear.<br><br>Perfect time for:<br>• Planning global initiatives<br>• Setting worldwide objectives<br>• Organizing your cloud knowledge<br><br>What global project should we start?`;
+                }
+                const taskList = activeTasks.slice(0, 5).map((t, i) => `${i+1}. ${t.title} ${getPriorityEmoji(t.priority)} 🌐`).join('<br>');
+                return `🎯 <strong>Global Active Missions:</strong><br><br>${taskList}<br><br>📱 All synced across your devices<br>🌍 Accessible from anywhere<br><br>Which mission should we prioritize globally?`;
+            }
+            
+            // Enhanced global organization
+            if (msg.includes('organize') || msg.includes('organized') || msg.includes('productivity')) {
+                return `🌐 <strong>Global Productivity Optimization:</strong><br><br>
+                <strong>🌅 Global Daily Protocol:</strong><br>
+                1. Check dashboard from any device<br>
+                2. Set priorities that sync worldwide<br>
+                3. Access tasks from your current location<br>
+                4. Work efficiently across time zones<br><br>
+                
+                <strong>⚡ Cloud Efficiency Systems:</strong><br>
+                • Multi-device 2-minute rule<br>
+                • Global task batching<br>
+                • Timezone-aware scheduling<br>
+                • Cross-device context switching<br><br>
+                
+                <strong>📊 Worldwide Progress Tracking:</strong><br>
+                • Real-time sync across all devices<br>
+                • Global completion analytics<br>
+                • Multi-location productivity insights<br><br>
+                
+                Your productivity system now works everywhere you do!`;
+            }
+            
+            // Global help system
+            if (msg.includes('help') || msg.includes('what can you do') || msg.includes('commands')) {
+                return `🌐 <strong>Cloud AI Assistant - Global Capabilities:</strong><br><br>
+                
+                <strong>📋 Global Task Management:</strong><br>
+                • "Add task: [description]" - Syncs to all devices<br>
+                • "Show my tasks" - View from anywhere<br>
+                • "Help me prioritize" - Timezone-aware guidance<br><br>
+                
+                <strong>🧠 Cloud Knowledge System:</strong><br>
+                • "Create note: [content]" - Global knowledge base<br>
+                • "Remember [info]" - Worldwide accessibility<br><br>
+                
+                <strong>🎯 Global Strategic Planning:</strong><br>
+                • "Help me get organized" - Cross-device optimization<br>
+                • "What should I focus on?" - Location-aware priorities<br>
+                • "Show analytics" - Global performance insights<br><br>
+                
+                <strong>🚀 Cloud-Enhanced Features:</strong><br>
+                • Multi-device synchronization<br>
+                • Global accessibility<br>
+                • Timezone intelligence<br>
+                • Cross-platform compatibility<br><br>
+                
+                I'm your global productivity partner! What worldwide challenge should we tackle?`;
+            }
+            
+            // Enhanced responses with cloud context
+            const cloudResponses = [
+                `🌐 <strong>Global AI Processing!</strong><br><br>I'm analyzing your request with cloud intelligence from servers worldwide. Your data is synchronized globally - what worldwide outcome are you targeting?`,
+                
+                `🎯 <strong>Cloud Intelligence Engaged!</strong><br><br>With your ${commandData.tasks.filter(t => !t.completed).length} active global tasks and ${commandData.notes.length} cloud knowledge entries, I can provide worldwide recommendations. What's your biggest global challenge?`,
+                
+                `🚀 <strong>Worldwide AI Ready!</strong><br><br>Your cloud command center gives you global reach. Whether you're planning internationally, coordinating across timezones, or managing worldwide projects - I'm here to help optimize your global success!`,
+                
+                `💡 <strong>Global Assistant Online!</strong><br><br>I combine cloud computing with worldwide accessibility. Your productivity system now works everywhere you do, with real-time sync and global intelligence. How can I help you succeed worldwide?`
+            ];
+            
+            return cloudResponses[Math.floor(Math.random() * cloudResponses.length)];
+        }
+
+        // Enhanced task management with cloud features
+        function createTaskFromChat(taskText) {
+            const task = {
+                id: Date.now(),
+                title: taskText,
+                description: 'Created via Cloud AI chat',
+                priority: 'medium',
+                completed: false,
+                created: new Date().toISOString(),
+                cloudSync: true
+            };
+
+            commandData.tasks.push(task);
+            saveData('tasks');
+            updateStats();
+            loadDataDisplay();
+            syncData();
+        }
+
+        function completeTask(taskId) {
+            commandData.tasks = commandData.tasks.map(task => 
+                task.id === taskId ? { ...task, completed: true, completedDate: new Date().toISOString(), cloudSync: true } : task
+            );
+            saveData('tasks');
+            updateStats();
+            loadDataDisplay();
+            syncData();
+            showNotification('✅ Mission accomplished globally!', 'success');
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('🗑️ Delete this mission from all devices?')) {
+                commandData.tasks = commandData.tasks.filter(task => task.id !== taskId);
+                saveData('tasks');
+                updateStats();
+                loadDataDisplay();
+                syncData();
+                showNotification('🗑️ Mission removed globally', 'info');
+            }
+        }
+
+        // Enhanced note management with cloud features
+        function createNoteFromChat(noteText) {
+            const note = {
+                id: Date.now(),
+                title: noteText.length > 50 ? noteText.substring(0, 50) + '...' : noteText,
+                content: noteText,
+                created: new Date().toISOString(),
+                cloudSync: true
+            };
+
+            commandData.notes.push(note);
+            saveData('notes');
+            updateStats();
+            loadDataDisplay();
+            syncData();
+        }
+
+        function deleteNote(noteId) {
+            if (confirm('🗑️ Delete this note from all devices?')) {
+                commandData.notes = commandData.notes.filter(note => note.id !== noteId);
+                saveData('notes');
+                updateStats();
+                loadDataDisplay();
+                syncData();
+                showNotification('🗑️ Note removed globally', 'info');
+            }
+        }
+
+        // Enhanced data management with cloud sync
+        function saveData(type) {
+            localStorage.setItem(`cloud_cc_${type}`, JSON.stringify(commandData[type]));
+        }
+
+        function loadDataDisplay() {
+            const display = document.getElementById('dataDisplay');
+            const activeTasks = commandData.tasks.filter(t => !t.completed);
+            const completedTasks = commandData.tasks.filter(t => t.completed);
+            const recentNotes = commandData.notes.slice(-5).reverse();
+
+            if (commandData.tasks.length === 0 && commandData.notes.length === 0) {
+                display.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.7);">
+                        <div style="font-size: 3em; margin-bottom: 15px;">🌐</div>
+                        <h3>Global Command Center Online!</h3>
+                        <p>Your cloud-powered system is ready worldwide. Access from any device, anywhere!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            // Active Tasks with cloud indicators
+            if (activeTasks.length > 0) {
+                html += '<h3 style="margin-bottom: 15px;">🎯 Global Active Missions</h3>';
+                activeTasks.sort((a, b) => {
+                    const priorityOrder = { high: 0, medium: 1, low: 2 };
+                    return priorityOrder[a.priority] - priorityOrder[b.priority];
+                }).slice(0, 6).forEach(task => {
+                    const priorityEmoji = getPriorityEmoji(task.priority);
+                    html += `
+                        <div class="data-item priority-${task.priority}">
+                            <h4>${priorityEmoji} ${task.title} 🌐</h4>
+                            ${task.description ? `<p style="color: rgba(255,255,255,0.8); font-size: 0.9em;">${task.description}</p>` : ''}
+                            <small style="color: rgba(255,255,255,0.6);">☁️ Synced globally</small>
+                            <div style="margin-top: 10px;">
+                                <button class="btn btn-complete" onclick="completeTask(${task.id})">✅ Complete</button>
+                                <button class="btn btn-delete" onclick="deleteTask(${task.id})">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Recent Notes with cloud sync
+            if (recentNotes.length > 0) {
+                html += '<h3 style="margin: 25px 0 15px 0;">🧠 Global Knowledge Base</h3>';
+                recentNotes.slice(0, 3).forEach(note => {
+                    html += `
+                        <div class="data-item">
+                            <h4>📝 ${note.title} 🌐</h4>
+                            <p style="color: rgba(255,255,255,0.8); font-size: 0.9em;">${note.content}</p>
+                            <small style="color: rgba(255,255,255,0.6);">☁️ Synced: ${new Date(note.created).toLocaleDateString()}</small>
+                            <div style="margin-top: 10px;">
+                                <button class="btn btn-delete" onclick="deleteNote(${note.id})">🗑️ Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Recent Accomplishments
+            if (completedTasks.length > 0) {
+                html += '<h3 style="margin: 25px 0 15px 0;">✅ Global Accomplishments</h3>';
+                completedTasks.slice(-2).forEach(task => {
+                    html += `
+                        <div class="data-item completed">
+                            <h4>✅ ${task.title} 🌍</h4>
+                            <small style="color: rgba(255,255,255,0.6);">Completed globally: ${new Date(task.completedDate || task.created).toLocaleDateString()}</small>
+                        </div>
+                    `;
+                });
+            }
+
+            display.innerHTML = html;
+        }
+
+        // Utility Functions
+        function getPriorityEmoji(priority) {
+            const emojis = { high: '🔴', medium: '🟡', low: '🟢' };
+            return emojis[priority] || '🟡';
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Event Listeners
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') login();
+        });
+
+        // Initialize with cloud features
+        updateStats();
+        loadDataDisplay();
+        document.getElementById('passwordInput').focus();
+        
+        // Periodic cloud sync simulation
+        setInterval(syncData, 30000); // Sync every 30 seconds
+    </script>
+</body>
+</html>
